@@ -111,10 +111,10 @@ def get_seqsep(idx, cyclize=None):
     
     # Create chain IDs to identify the separate chains
     chain_ids = torch.cumsum(chain_boundaries, dim=0)
-    
+
+    print(f'get_seqsep cyclize = {cyclize}')
     # Only apply cyclic logic if cyclize is True
     if cyclize:
-        print(f'get_seqsep cyclize = {cyclize}')
         # Extract just the last chain's indices
         last_chain_id = chain_ids.max()
         last_chain_mask = (chain_ids == last_chain_id)
