@@ -114,6 +114,7 @@ def get_seqsep(idx, cyclize=None):
     
     # Only apply cyclic logic if cyclize is True
     if cyclize:
+        print(f'get_seqsep cyclize = {cyclize}')
         # Extract just the last chain's indices
         last_chain_id = chain_ids.max()
         last_chain_mask = (chain_ids == last_chain_id)
