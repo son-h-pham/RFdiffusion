@@ -52,7 +52,7 @@ class PositionalEncoding2D(nn.Module):
             seqsep[:, rows[:, None], rows] = seqsep_first_chain
             
         # Continue with the rest of your original function
-        print(seqsep[0, :30, -30:])
+        print(seqsep[0, :30, 30:])
         ib = torch.bucketize(seqsep, bins).long()
         emb = self.emb(ib)
         x = x + emb
