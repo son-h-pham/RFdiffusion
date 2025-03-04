@@ -58,7 +58,8 @@ class RoseTTAFoldModule(nn.Module):
                                             n_head_pair=n_head_pair,
                                             SE3_param_full=SE3_param_full,
                                             SE3_param_topk=SE3_param_topk,
-                                            p_drop=p_drop)
+                                            p_drop=p_drop,
+                                            cyclize=cyclize)
         ##
         self.c6d_pred = DistanceNetwork(d_pair, p_drop=p_drop)
         self.aa_pred = MaskedTokenNetwork(d_msa)
