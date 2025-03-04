@@ -83,7 +83,7 @@ class MSA_emb(nn.Module):
 
         nn.init.zeros_(self.emb.bias)
 
-    def forward(self, msa, seq, idx):
+    def forward(self, msa, seq, idx,cyclize):
         # Inputs:
         #   - msa: Input MSA (B, N, L, d_init)
         #   - seq: Input Sequence (B, L)
