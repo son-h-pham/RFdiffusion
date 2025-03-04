@@ -399,7 +399,7 @@ class IterativeSimulator(nn.Module):
         """
 
         B, L = pair.shape[:2]
-        print(f'IterSim cyclize = {cyclize}')
+        print(f'IterSim forward pass cyclize = {cyclize}')
         if motif_mask is None:
             motif_mask = torch.zeros(L).bool()
 
