@@ -32,7 +32,7 @@ class RoseTTAFoldModule(nn.Module):
                  ):
 
         super(RoseTTAFoldModule, self).__init__()
-
+        print(f'Module cyclize = {cyclize} ##########################################################################')
         self.freeze_track_motif = freeze_track_motif
 
         # Input Embeddings
