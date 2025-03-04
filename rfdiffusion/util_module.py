@@ -91,19 +91,49 @@ def rbf(D):
     RBF = torch.exp(-((D_expand - D_mu) / D_sigma)**2)
     return RBF
 
-def get_seqsep(idx):
+def get_seqsep(idx, cyclize=None):
     '''
     Input:
         - idx: residue indices of given sequence (B,L)
+        - cyclize: whether to apply cyclic encoding to the last chain (default: None)
     Output:
         - seqsep: sequence separation feature with sign (B, L, L, 1)
                   Sergey found that having sign in seqsep features helps a little
     '''
     seqsep = idx[:,None,:] - idx[:,:,None]
+    
+    # Find chain boundaries by detecting large jumps in indices
+    idx_diff = idx[:, 1:] - idx[:, :-1]
+    chain_boundaries = torch.cat([
+        torch.zeros(1, device=idx.device, dtype=torch.bool),
+        idx_diff.squeeze(0) > 10
+    ])
+    
+    # Create chain IDs to identify the separate chains
+    chain_ids = torch.cumsum(chain_boundaries, dim=0)
+    
+    # Only apply cyclic logic if cyclize is True
+    if cyclize:
+        # Extract just the last chain's indices
+        last_chain_id = chain_ids.max()
+        last_chain_mask = (chain_ids == last_chain_id)
+        L = last_chain_mask.sum()
+        
+        # Apply cyclic encoding only to the last chain
+        idx_last_chain = idx[:, last_chain_mask]
+        seqsep_last_chain = idx_last_chain[:,None,:] - idx_last_chain[:,:,None]
+        seqsep_last_chain = (seqsep_last_chain + L//2) % L - L//2
+        
+        # Update the corresponding part of the full seqsep tensor
+        rows = torch.where(last_chain_mask)[0]
+        seqsep[:, rows[:, None], rows] = seqsep_last_chain
+    
+    # Apply the original logic from get_seqsep
     sign = torch.sign(seqsep)
     neigh = torch.abs(seqsep)
-    neigh[neigh > 1] = 0.0 # if bonded -- 1.0 / else 0.0
+    neigh[neigh > 1] = 0.0  # if bonded -- 1.0 / else 0.0
     neigh = sign * neigh
+    
     return neigh.unsqueeze(-1)
 
 def make_full_graph(xyz, pair, idx, top_k=64, kmin=9):
