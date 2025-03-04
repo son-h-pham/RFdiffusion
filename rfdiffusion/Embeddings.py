@@ -24,10 +24,35 @@ class PositionalEncoding2D(nn.Module):
     def forward(self, x, idx):
         bins = torch.arange(self.minpos, self.maxpos, device=x.device)
         seqsep = idx[:,None,:] - idx[:,:,None] # (B, L, L)
-        #
-        ib = torch.bucketize(seqsep, bins).long() # (B, L, L)
-        emb = self.emb(ib) #(B, L, L, d_model)
-        x = x + emb # add relative positional encoding
+        
+        # Find chain boundaries by detecting large jumps in indices
+        idx_diff = idx[:, 1:] - idx[:, :-1]
+        chain_boundaries = torch.cat([
+            torch.zeros(1, device=idx.device, dtype=torch.bool),
+            idx_diff.squeeze(0) > 10
+        ])
+        
+        # Create chain IDs to identify the separate chains
+        chain_ids = torch.cumsum(chain_boundaries, dim=0)
+        
+        # Extract just the last chain's indices
+        last_chain_id = chain_ids.max()
+        last_chain_mask = (chain_ids == last_chain_id)
+        L = last_chain_mask.sum()
+        
+        # Apply cyclic encoding only to the last chain
+        idx_last_chain = idx[:, last_chain_mask]
+        seqsep_last_chain = idx_last_chain[:,None,:] - idx_last_chain[:,:,None]
+        seqsep_last_chain = (seqsep_last_chain + L//2) % L - L//2
+        
+        # Update the corresponding part of the full seqsep tensor
+        rows = torch.where(last_chain_mask)[0]
+        seqsep[:, rows[:, None], rows] = seqsep_last_chain
+        
+        # Continue with the rest of your original function
+        ib = torch.bucketize(seqsep, bins).long()
+        emb = self.emb(ib)
+        x = x + emb
         return self.drop(x)
 
 class MSA_emb(nn.Module):
