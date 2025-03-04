@@ -318,18 +318,18 @@ class IterBlock(nn.Module):
                                SE3_param=SE3_param,
                                p_drop=p_drop,cyclize=cyclize)
 
-    def forward(self, msa, pair, R_in, T_in, xyz, state, idx, motif_mask, use_checkpoint=False):
+    def forward(self, msa, pair, R_in, T_in, xyz, state, idx, motif_mask, use_checkpoint=False,cyclize=None):
         rbf_feat = rbf(torch.cdist(xyz[:,:,1,:], xyz[:,:,1,:]))
         if use_checkpoint:
             msa = checkpoint.checkpoint(create_custom_forward(self.msa2msa), msa, pair, rbf_feat, state)
             pair = checkpoint.checkpoint(create_custom_forward(self.msa2pair), msa, pair)
             pair = checkpoint.checkpoint(create_custom_forward(self.pair2pair), pair, rbf_feat)
-            R, T, state, alpha = checkpoint.checkpoint(create_custom_forward(self.str2str, top_k=0), msa, pair, R_in, T_in, xyz, state, idx, motif_mask)
+            R, T, state, alpha = checkpoint.checkpoint(create_custom_forward(self.str2str, top_k=0), msa, pair, R_in, T_in, xyz, state, idx, motif_mask,cyclize=cyclize)
         else:
             msa = self.msa2msa(msa, pair, rbf_feat, state)
             pair = self.msa2pair(msa, pair)
             pair = self.pair2pair(pair, rbf_feat)
-            R, T, state, alpha = self.str2str(msa, pair, R_in, T_in, xyz, state, idx, motif_mask=motif_mask, top_k=0) 
+            R, T, state, alpha = self.str2str(msa, pair, R_in, T_in, xyz, state, idx, motif_mask=motif_mask, top_k=0,cyclize=cyclize) 
         
         return msa, pair, R, T, state, alpha
 
@@ -384,7 +384,7 @@ class IterativeSimulator(nn.Module):
         self.proj_state2 = init_lecun_normal(self.proj_state2)
         nn.init.zeros_(self.proj_state2.bias)
 
-    def forward(self, seq, msa, msa_full, pair, xyz_in, state, idx, use_checkpoint=False, motif_mask=None):
+    def forward(self, seq, msa, msa_full, pair, xyz_in, state, idx, use_checkpoint=False, motif_mask=None,cyclize=None):
         """
         input:
            seq: query sequence (B, L)
@@ -425,7 +425,7 @@ class IterativeSimulator(nn.Module):
                                                                              state, 
                                                                              idx,
                                                                              motif_mask=motif_mask,
-                                                                             use_checkpoint=use_checkpoint)
+                                                                             use_checkpoint=use_checkpoint,cyclize=cyclize)
             R_s.append(R_in)
             T_s.append(T_in)
             alpha_s.append(alpha)
@@ -444,7 +444,7 @@ class IterativeSimulator(nn.Module):
                                                                        state, 
                                                                        idx,
                                                                        motif_mask=motif_mask,
-                                                                       use_checkpoint=use_checkpoint)
+                                                                       use_checkpoint=use_checkpoint,cyclize=cyclize)
             R_s.append(R_in)
             T_s.append(T_in)
             alpha_s.append(alpha)
@@ -462,7 +462,7 @@ class IterativeSimulator(nn.Module):
                                                         state, 
                                                         idx, 
                                                         top_k=64, 
-                                                        motif_mask=motif_mask)
+                                                        motif_mask=motif_mask,cyclize=cyclize)
             R_s.append(R_in)
             T_s.append(T_in)
             alpha_s.append(alpha)
