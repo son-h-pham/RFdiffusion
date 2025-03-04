@@ -37,6 +37,7 @@ class PositionalEncoding2D(nn.Module):
         
         # Only apply cyclic logic if cyclize is True
         if cyclize:
+            print('Cyclize=True')
             # Extract just the last chain's indices
             last_chain_id = chain_ids.max()
             last_chain_mask = (chain_ids == last_chain_id)
