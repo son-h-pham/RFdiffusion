@@ -27,7 +27,8 @@ class RoseTTAFoldModule(nn.Module):
                  freeze_track_motif, # Whether to freeze updates to motif in track
                  SE3_param_full={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
                  SE3_param_topk={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
-                 input_seq_onehot=False,     # For continuous vs. discrete sequence
+                 input_seq_onehot=False,# For continuous vs. discrete sequence
+                 cyclize,
                  ):
 
         super(RoseTTAFoldModule, self).__init__()
@@ -37,7 +38,7 @@ class RoseTTAFoldModule(nn.Module):
         # Input Embeddings
         d_state = SE3_param_topk['l0_out_features']
         self.latent_emb = MSA_emb(d_msa=d_msa, d_pair=d_pair, d_state=d_state,
-                p_drop=p_drop, input_seq_onehot=input_seq_onehot) # Allowed to take onehotseq
+                p_drop=p_drop, input_seq_onehot=input_seq_onehot, cyclize=cyclize) # Allowed to take onehotseq
         self.full_emb = Extra_emb(d_msa=d_msa_full, d_init=25,
                 p_drop=p_drop, input_seq_onehot=input_seq_onehot) # Allowed to take onehotseq
         self.templ_emb = Templ_emb(d_pair=d_pair, d_templ=d_templ, d_state=d_state,
@@ -69,11 +70,11 @@ class RoseTTAFoldModule(nn.Module):
                 t1d=None, t2d=None, xyz_t=None, alpha_t=None,
                 msa_prev=None, pair_prev=None, state_prev=None,
                 return_raw=False, return_full=False, return_infer=False,
-                use_checkpoint=False, motif_mask=None, i_cycle=None, n_cycle=None):
+                use_checkpoint=False, motif_mask=None, i_cycle=None, n_cycle=None, cyclize=None):
 
         B, N, L = msa_latent.shape[:3]
         # Get embeddings
-        msa_latent, pair, state = self.latent_emb(msa_latent, seq, idx)
+        msa_latent, pair, state = self.latent_emb(msa_latent, seq, idx, cyclize)
         msa_full = self.full_emb(msa_full, seq, idx)
 
         # Do recycling
