@@ -13,7 +13,7 @@ import math
 
 class PositionalEncoding2D(nn.Module):
     # Add relative positional encoding to pair features
-    def __init__(self, d_model, minpos=-32, maxpos=32, p_drop=0.1,cyclize):
+    def __init__(self, d_model, minpos=-32, maxpos=32, p_drop=0.1,cyclize=None):
         super(PositionalEncoding2D, self).__init__()
         self.minpos = minpos
         self.maxpos = maxpos
