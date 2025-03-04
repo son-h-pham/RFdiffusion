@@ -56,9 +56,9 @@ class Sampler:
         # Assign config to Sampler
         self._conf = conf
         try:
-            cyclize = self._conf.cyclize.cyclic
+            self.cyclize = self._conf.cyclize.cyclic
         except AttributeError:
-            cyclize = None
+            self.cyclize = None
         ################################
         ### Select Appropriate Model ###
         ################################
@@ -226,7 +226,7 @@ class Sampler:
         # Read input dimensions from checkpoint.
         self.d_t1d=self._conf.preprocess.d_t1d
         self.d_t2d=self._conf.preprocess.d_t2d
-        model = RoseTTAFoldModule(**self._conf.model, d_t1d=self.d_t1d, d_t2d=self.d_t2d, T=self._conf.diffuser.T,cyclize=cyclize).to(self.device)
+        model = RoseTTAFoldModule(**self._conf.model, d_t1d=self.d_t1d, d_t2d=self.d_t2d, T=self._conf.diffuser.T,cyclize=self.cyclize).to(self.device)
         if self._conf.logging.inputs:
             pickle_dir = pickle_function_call(model, 'forward', 'inference')
             print(f'pickle_dir: {pickle_dir}')
