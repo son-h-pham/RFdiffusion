@@ -60,7 +60,7 @@ class Sampler:
         except AttributeError:
             self.cyclize = None
             print('Arg parse failed')
-        print('****** Cyclize = {self.cyclize} ********')
+        print(f'****** Cyclize = {self.cyclize} ********')
         ################################
         ### Select Appropriate Model ###
         ################################
