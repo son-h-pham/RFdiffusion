@@ -67,11 +67,11 @@ class RoseTTAFoldModule(nn.Module):
        
         self.exp_pred = ExpResolvedNetwork(d_msa, d_state)
 
-    def forward(self, msa_latent, msa_full, seq, xyz, idx, t, cyclize,
+    def forward(self, msa_latent, msa_full, seq, xyz, idx, t,
                 t1d=None, t2d=None, xyz_t=None, alpha_t=None,
                 msa_prev=None, pair_prev=None, state_prev=None,
                 return_raw=False, return_full=False, return_infer=False,
-                use_checkpoint=False, motif_mask=None, i_cycle=None, n_cycle=None):
+                use_checkpoint=False, motif_mask=None, i_cycle=None, n_cycle=None, cyclize=cyclize):
 
         B, N, L = msa_latent.shape[:3]
         # Get embeddings
