@@ -28,7 +28,7 @@ class RoseTTAFoldModule(nn.Module):
                  SE3_param_full={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
                  SE3_param_topk={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
                  input_seq_onehot=False,# For continuous vs. discrete sequence
-                 cyclize,
+                 cyclize=None,
                  ):
 
         super(RoseTTAFoldModule, self).__init__()
