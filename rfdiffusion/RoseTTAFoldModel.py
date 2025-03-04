@@ -103,7 +103,7 @@ class RoseTTAFoldModule(nn.Module):
         is_frozen_residue = motif_mask if self.freeze_track_motif else torch.zeros_like(motif_mask).bool()
         msa, pair, R, T, alpha_s, state = self.simulator(seq, msa_latent, msa_full, pair, xyz[:,:,:3],
                                                          state, idx, use_checkpoint=use_checkpoint,
-                                                         motif_mask=is_frozen_residue)
+                                                         motif_mask=is_frozen_residue,cyclize=cyclize)
         
         if return_raw:
             # get last structure
