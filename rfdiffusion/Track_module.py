@@ -356,7 +356,7 @@ class IterativeSimulator(nn.Module):
                                                         d_hidden=d_hidden,
                                                         p_drop=p_drop,
                                                         use_global_attn=True,
-                                                        SE3_param=SE3_param_full,cyclize=self.cyclize)
+                                                        SE3_param=SE3_param_full,cyclize=cyclize)
                                                         for i in range(n_extra_block)])
 
         # Update with seed sequences
@@ -367,7 +367,7 @@ class IterativeSimulator(nn.Module):
                                                        d_hidden=d_hidden,
                                                        p_drop=p_drop,
                                                        use_global_attn=False,
-                                                       SE3_param=SE3_param_full,cyclize=self.cyclize)
+                                                       SE3_param=SE3_param_full,cyclize=cyclize)
                                                        for i in range(n_main_block)])
 
         self.proj_state2 = nn.Linear(SE3_param_full['l0_out_features'], SE3_param_topk['l0_out_features'])
