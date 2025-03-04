@@ -111,23 +111,21 @@ def get_seqsep(idx, cyclize=None):
     
     # Create chain IDs to identify the separate chains
     chain_ids = torch.cumsum(chain_boundaries, dim=0)
-
-    print(f'get_seqsep cyclize = {cyclize}')
+    
     # Only apply cyclic logic if cyclize is True
     if cyclize:
-        # Extract just the last chain's indices
-        last_chain_id = chain_ids.max()
-        last_chain_mask = (chain_ids == last_chain_id)
-        L = last_chain_mask.sum()
+        # Extract just the first chain's indices (chain_id = 0)
+        first_chain_mask = (chain_ids == 0)
+        L = first_chain_mask.sum()
         
-        # Apply cyclic encoding only to the last chain
-        idx_last_chain = idx[:, last_chain_mask]
-        seqsep_last_chain = idx_last_chain[:,None,:] - idx_last_chain[:,:,None]
-        seqsep_last_chain = (seqsep_last_chain + L//2) % L - L//2
-        
-        # Update the corresponding part of the full seqsep tensor
-        rows = torch.where(last_chain_mask)[0]
-        seqsep[:, rows[:, None], rows] = seqsep_last_chain
+        # Apply cyclic encoding only to the first chain
+        idx_first_chain = idx[:, first_chain_mask]
+        seqsep_first_chain = idx_first_chain[:,None,:] - idx_first_chain[:,:,None]
+        seqsep_first_chain = (seqsep_first_chain + L//2) % L - L//2
+    
+    # Update the corresponding part of the full seqsep tensor
+    rows = torch.where(first_chain_mask)[0]
+    seqsep[:, rows[:, None], rows] = seqsep_first_chain
     
     # Apply the original logic from get_seqsep
     sign = torch.sign(seqsep)
