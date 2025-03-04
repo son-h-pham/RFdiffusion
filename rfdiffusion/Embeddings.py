@@ -13,7 +13,7 @@ import math
 
 class PositionalEncoding2D(nn.Module):
     # Add relative positional encoding to pair features
-    def __init__(self, d_model, minpos=-32, maxpos=32, p_drop=0.1):
+    def __init__(self, d_model, minpos=-32, maxpos=32, p_drop=0.1,cyclize):
         super(PositionalEncoding2D, self).__init__()
         self.minpos = minpos
         self.maxpos = maxpos
@@ -33,7 +33,7 @@ class PositionalEncoding2D(nn.Module):
 class MSA_emb(nn.Module):
     # Get initial seed MSA embedding
     def __init__(self, d_msa=256, d_pair=128, d_state=32, d_init=22+22+2+2,
-                 minpos=-32, maxpos=32, p_drop=0.1, input_seq_onehot=False):
+                 minpos=-32, maxpos=32, p_drop=0.1, input_seq_onehot=False,cyclize=None):
         super(MSA_emb, self).__init__()
         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
         self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
@@ -41,7 +41,7 @@ class MSA_emb(nn.Module):
         self.emb_right = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
         self.emb_state = nn.Embedding(22, d_state)
         self.drop = nn.Dropout(p_drop)
-        self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos, p_drop=p_drop)
+        self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos, p_drop=p_drop,cyclize)
 
         self.input_seq_onehot=input_seq_onehot
 
