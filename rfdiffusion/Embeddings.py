@@ -53,6 +53,7 @@ class PositionalEncoding2D(nn.Module):
             seqsep[:, rows[:, None], rows] = seqsep_last_chain
         
         # Continue with the rest of your original function
+        print(idx)
         print(seqsep)
         ib = torch.bucketize(seqsep, bins).long()
         emb = self.emb(ib)
