@@ -320,7 +320,7 @@ class IterBlock(nn.Module):
 
     def forward(self, msa, pair, R_in, T_in, xyz, state, idx, motif_mask, use_checkpoint=False,cyclize=None):
         rbf_feat = rbf(torch.cdist(xyz[:,:,1,:], xyz[:,:,1,:]))
-        print(f'IterBlock cyclize = {cyclize}')
+        
         if use_checkpoint:
             msa = checkpoint.checkpoint(create_custom_forward(self.msa2msa), msa, pair, rbf_feat, state)
             pair = checkpoint.checkpoint(create_custom_forward(self.msa2pair), msa, pair)
@@ -345,7 +345,7 @@ class IterativeSimulator(nn.Module):
         self.n_extra_block = n_extra_block
         self.n_main_block = n_main_block
         self.n_ref_block = n_ref_block
-        print(f'IterSim cyclize = {cyclize}')
+        
         self.proj_state = nn.Linear(SE3_param_topk['l0_out_features'], SE3_param_full['l0_out_features'])
         # Update with extra sequences
         if n_extra_block > 0:
@@ -399,7 +399,7 @@ class IterativeSimulator(nn.Module):
         """
 
         B, L = pair.shape[:2]
-        print(f'IterSim forward pass cyclize = {cyclize}')
+        
         if motif_mask is None:
             motif_mask = torch.zeros(L).bool()
 
