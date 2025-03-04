@@ -57,10 +57,10 @@ class Sampler:
         self._conf = conf
         try:
             self.cyclize = self._conf.cyclize.cyclic
-            print('****** Cyclize = True ********')
         except AttributeError:
             self.cyclize = None
             print('Arg parse failed')
+        print('****** Cyclize = {self.cyclize} ********')
         ################################
         ### Select Appropriate Model ###
         ################################
