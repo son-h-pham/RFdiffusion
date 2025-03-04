@@ -34,7 +34,7 @@ class PositionalEncoding2D(nn.Module):
         
         # Create chain IDs to identify the separate chains
         chain_ids = torch.cumsum(chain_boundaries, dim=0)
-        print(f'----------------------------------------Cyclize={cyclize}'------------------------------------)
+        print(f'----------------------------------------Cyclize={cyclize}'------------------------------------')
         # Only apply cyclic logic if cyclize is True
         if cyclize:
             print('Cyclize=True')
