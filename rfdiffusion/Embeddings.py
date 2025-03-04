@@ -110,7 +110,7 @@ class MSA_emb(nn.Module):
         right = (seq @ self.emb_right.weight)[:,:,None] # (B, L, 1, d_pair)
 
         pair = left + right # (B, L, L, d_pair)
-        pair = self.pos(pair, idx) # add relative position
+        pair = self.pos(pair, idx,cyclize=cyclize) # add relative position
 
         # state embedding
         # Sergey's one hot trick
