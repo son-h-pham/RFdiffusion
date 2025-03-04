@@ -34,10 +34,10 @@ class PositionalEncoding2D(nn.Module):
         
         # Create chain IDs to identify the separate chains
         chain_ids = torch.cumsum(chain_boundaries, dim=0)
-        print(f'----------------------------------------Cyclize={cyclize}------------------------------------')
+        
         # Only apply cyclic logic if cyclize is True
         if cyclize:
-            print('Cyclize=True')
+            
             # Extract just the last chain's indices
             last_chain_id = chain_ids.max()
             last_chain_mask = (chain_ids == last_chain_id)
@@ -53,6 +53,7 @@ class PositionalEncoding2D(nn.Module):
             seqsep[:, rows[:, None], rows] = seqsep_last_chain
         
         # Continue with the rest of your original function
+        print(seqsep)
         ib = torch.bucketize(seqsep, bins).long()
         emb = self.emb(ib)
         x = x + emb
