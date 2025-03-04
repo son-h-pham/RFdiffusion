@@ -200,7 +200,7 @@ class SCPred(nn.Module):
 
 class Str2Str(nn.Module):
     def __init__(self, d_msa=256, d_pair=128, d_state=16, 
-            SE3_param={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32}, p_drop=0.1):
+            SE3_param={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32}, p_drop=0.1,cyclize=None):
         super(Str2Str, self).__init__()
         
         # initial node & pair feature process
@@ -249,7 +249,7 @@ class Str2Str(nn.Module):
         node = self.norm_node(self.embed_x(node))
         pair = self.norm_edge1(self.embed_e1(pair))
         
-        neighbor = get_seqsep(idx)
+        neighbor = get_seqsep(idx,cyclize)
         rbf_feat = rbf(torch.cdist(xyz[:,:,1], xyz[:,:,1]))
         pair = torch.cat((pair, rbf_feat, neighbor), dim=-1)
         pair = self.norm_edge2(self.embed_e2(pair))
@@ -298,7 +298,7 @@ class IterBlock(nn.Module):
                  n_head_msa=8, n_head_pair=4,
                  use_global_attn=False,
                  d_hidden=32, d_hidden_msa=None, p_drop=0.15,
-                 SE3_param={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32}):
+                 SE3_param={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},cyclize=None):
         super(IterBlock, self).__init__()
         if d_hidden_msa == None:
             d_hidden_msa = d_hidden
@@ -316,7 +316,7 @@ class IterBlock(nn.Module):
         self.str2str = Str2Str(d_msa=d_msa, d_pair=d_pair,
                                d_state=SE3_param['l0_out_features'],
                                SE3_param=SE3_param,
-                               p_drop=p_drop)
+                               p_drop=p_drop,cyclize=cyclize)
 
     def forward(self, msa, pair, R_in, T_in, xyz, state, idx, motif_mask, use_checkpoint=False):
         rbf_feat = rbf(torch.cdist(xyz[:,:,1,:], xyz[:,:,1,:]))
@@ -339,7 +339,7 @@ class IterativeSimulator(nn.Module):
                  n_head_msa=8, n_head_pair=4,
                  SE3_param_full={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
                  SE3_param_topk={'l0_in_features':32, 'l0_out_features':16, 'num_edge_features':32},
-                 p_drop=0.15):
+                 p_drop=0.15,cyclize=None):
         super(IterativeSimulator, self).__init__()
         self.n_extra_block = n_extra_block
         self.n_main_block = n_main_block
@@ -355,7 +355,7 @@ class IterativeSimulator(nn.Module):
                                                         d_hidden=d_hidden,
                                                         p_drop=p_drop,
                                                         use_global_attn=True,
-                                                        SE3_param=SE3_param_full)
+                                                        SE3_param=SE3_param_full,cyclize=cyclize)
                                                         for i in range(n_extra_block)])
 
         # Update with seed sequences
@@ -366,7 +366,7 @@ class IterativeSimulator(nn.Module):
                                                        d_hidden=d_hidden,
                                                        p_drop=p_drop,
                                                        use_global_attn=False,
-                                                       SE3_param=SE3_param_full)
+                                                       SE3_param=SE3_param_full,cyclize=cyclize)
                                                        for i in range(n_main_block)])
 
         self.proj_state2 = nn.Linear(SE3_param_full['l0_out_features'], SE3_param_topk['l0_out_features'])
@@ -375,7 +375,7 @@ class IterativeSimulator(nn.Module):
             self.str_refiner = Str2Str(d_msa=d_msa, d_pair=d_pair,
                                        d_state=SE3_param_topk['l0_out_features'],
                                        SE3_param=SE3_param_topk,
-                                       p_drop=p_drop)
+                                       p_drop=p_drop,cyclize=cyclize)
     
         self.reset_parameter()
     def reset_parameter(self):
