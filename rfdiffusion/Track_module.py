@@ -249,7 +249,7 @@ class Str2Str(nn.Module):
         node = self.norm_node(self.embed_x(node))
         pair = self.norm_edge1(self.embed_e1(pair))
         
-        neighbor = get_seqsep(idx,cyclize)
+        neighbor = get_seqsep(idx,cyclize=cyclize)
         rbf_feat = rbf(torch.cdist(xyz[:,:,1], xyz[:,:,1]))
         pair = torch.cat((pair, rbf_feat, neighbor), dim=-1)
         pair = self.norm_edge2(self.embed_e2(pair))
