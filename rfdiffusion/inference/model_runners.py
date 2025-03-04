@@ -590,7 +590,7 @@ class Sampler:
                                 state_prev = state_prev,
                                 t=torch.tensor(t),
                                 return_infer=True,
-                                motif_mask=self.diffusion_mask.squeeze().to(self.device),cyclize=cyclize)
+                                motif_mask=self.diffusion_mask.squeeze().to(self.device),cyclize=self.cyclize)
 
         # prediction of X0 
         _, px0  = self.allatom(torch.argmax(seq_in, dim=-1), px0, alpha)
@@ -680,7 +680,7 @@ class SelfConditioning(Sampler):
                                 state_prev = None,
                                 t=torch.tensor(t),
                                 return_infer=True,
-                                motif_mask=self.diffusion_mask.squeeze().to(self.device),cyclize=cyclize)   
+                                motif_mask=self.diffusion_mask.squeeze().to(self.device),cyclize=self.cyclize)   
 
             if self.symmetry is not None and self.inf_conf.symmetric_self_cond:
                 px0 = self.symmetrise_prev_pred(px0=px0,seq_in=seq_in, alpha=alpha)[:,:,:3]
