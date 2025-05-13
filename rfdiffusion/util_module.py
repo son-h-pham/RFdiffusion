@@ -123,10 +123,12 @@ def get_seqsep(idx, cyclize=None):
         seqsep_first_chain = idx_first_chain[:,None,:] - idx_first_chain[:,:,None]
         seqsep_first_chain = (seqsep_first_chain + L//2) % L - L//2
     
-    # Update the corresponding part of the full seqsep tensor
-    rows = torch.where(first_chain_mask)[0]
-    seqsep[:, rows[:, None], rows] = seqsep_first_chain
-    
+        # Update the corresponding part of the full seqsep tensor
+        rows = torch.where(first_chain_mask)[0]
+        seqsep[:, rows[:, None], rows] = seqsep_first_chain
+    else:
+        seqsep = idx[:,None,:] - idx[:,:,None]
+        
     # Apply the original logic from get_seqsep
     sign = torch.sign(seqsep)
     neigh = torch.abs(seqsep)
